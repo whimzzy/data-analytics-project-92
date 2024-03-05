@@ -3,7 +3,7 @@ from customers
 
 select concat(e.first_name, ' ', e.last_name) as name, /*соединение имени и фамилии*/ 
 count(s.sales_id) as operations, /*подсчет количества продаж*/ 
-round(sum(s.quantity*p.price), 0) as income /*подсчет и округление суммы продаж*/
+floor(sum(s.quantity*p.price)) as income /*подсчет и округление суммы продаж*/
 from sales s
 left join employees e 
 on s.sales_person_id = e.employee_id 
@@ -13,14 +13,14 @@ group by concat(e.first_name, ' ', e.last_name)
 order by income desc
 limit 10;
 
+
 WITH tab AS (select concat(e.first_name, ' ', e.last_name) as name, 
-	sum(s.quantity*p.price) as income
+	s.quantity*p.price as income
 from sales s
 left join employees e 
 on s.sales_person_id = e.employee_id 
 left join products p 
 on s.product_id = p.product_id
-group by concat(e.first_name, ' ', e.last_name)
 )
 SELECT name, round(avg(income), 0) AS average_income /*подсчет и округление среднего дохода*/
 FROM tab
@@ -58,8 +58,8 @@ order by age_category;
 
 
 select to_char(s.sale_date, 'YYYY-MM') as date, /*переводим в год-месяц по условию*/ 
-sum(distinct s.customer_id) as total_customers, /*сумма уникальных покупателей*/ 
-round(sum(s.quantity*p.price), 0) as income
+count(distinct s.customer_id) as total_customers, /*сумма уникальных покупателей*/ 
+floor(sum(s.quantity*p.price)) as income
 from sales s
 left join customers c
 on s.customer_id = c.customer_id 
